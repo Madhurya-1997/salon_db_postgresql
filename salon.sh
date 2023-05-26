@@ -52,7 +52,7 @@ READ_SERVICE() {
 					
 					if [[ $INSERT_CUSTOMER_RESULT = 'INSERT 0 1' ]]
 					then
-						echo "Inserted a customer: $CUSTOMER_NAME"
+						echo "We welcome our new customer: $CUSTOMER_NAME"
 						CUSTOMER_ID=$($PSQL "SELECT customer_id FROM customers WHERE phone='$CUSTOMER_PHONE'")
 						INSERT_APPOINTMENT_RESULT=$($PSQL "INSERT INTO appointments(customer_id, service_id, time) VALUES ($CUSTOMER_ID, $SERVICE_ID_SELECTED, '$SERVICE_TIME')")
 
@@ -60,25 +60,32 @@ READ_SERVICE() {
 						then
 							SERVICE_NAME=$($PSQL "SELECT name FROM services WHERE service_id=$SERVICE_ID_SELECTED")
 							echo -e "\nI have put you down for a $SERVICE_NAME at $SERVICE_TIME, $CUSTOMER_NAME."
+                            EXIT
 						fi
 					fi
 				else
 					# get customer name from their phone (unique)
 					# insert into appointments table
 					CUSTOMER_ID=$($PSQL "SELECT customer_id FROM customers WHERE phone='$CUSTOMER_PHONE'")
+					CUSTOMER_NAME=$($PSQL "SELECT name FROM customers WHERE phone='$CUSTOMER_PHONE'")
 					INSERT_APPOINTMENT_RESULT=$($PSQL "INSERT INTO appointments(customer_id, service_id, time) VALUES ($CUSTOMER_ID, $SERVICE_ID_SELECTED, '$SERVICE_TIME')")
 
 					if [[ $INSERT_APPOINTMENT_RESULT = 'INSERT 0 1' ]]
 					then
 						SERVICE_NAME=$($PSQL "SELECT name FROM services WHERE service_id=$SERVICE_ID_SELECTED")
 						echo -e "\nI have put you down for a $SERVICE_NAME at $SERVICE_TIME, $CUSTOMER_NAME."
+                        EXIT
 					fi
 				fi
 			fi
 			
 		fi
 	fi
-	
+}
+
+
+EXIT() {
+    echo -e "\nThank you for making the appointment."
 }
 
 
